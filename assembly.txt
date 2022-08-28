@@ -1,0 +1,35 @@
+	.file	"hello.c"			;this line indicates the source file name
+	.intel_syntax noprefix      ;this line indicates that this program use 	    							;intel syntax without prefixes
+	.text						;Now we write things into the ".text" sections
+	.section	.rodata			;the program will be able to read the data
+.LC0:							
+	.string	"Hello %s\n"		;in the text section, there is a string called 									;Hello end with a symbol for line breaking
+	.text 						
+	.globl	main
+	.type	main, @function		;now we continue to write things into the 									;".text" sections, and create a main function 
+							    ;that is globally visible
+main:
+	push	rbp					;In the main function part, we firstly push 								;the rbp register into the program stack
+	mov	rbp, rsp				;Then we move the stack pointer's value into 									;the frame pointer
+	sub	rsp, 16					;Next, we move the stack pointer to extend the 									;space for the stack to hold 4 more local 									;arguments 
+
+	mov	DWORD PTR [rbp-4], edi  ;make the parameter at the address of rbp-4 as the value of edi
+	mov	QWORD PTR [rbp-16], rsi ;make the parameter at the address of rbp-16 as the value of rsi
+ 	cmp	DWORD PTR [rbp-4], 2    ;compare the value of 2 with the dword parameter at the address of 									;rbp-4
+	jne	.L2						;If not equal, then jump to the code at the L2 section
+
+	mov	rax, QWORD PTR [rbp-16] ;let rax register equals to the value of QWORD parameter at the 								;address of rbp-16
+	add	rax, 8					;make the result register rax equals to its previous one plus 8
+	mov	rax, QWORD PTR [rax]    ;let the value of QWORD parameter at the address of value of rax be 								;rax rigister value
+	mov	rsi, rax				;mov the value at rax to the register rsi
+	mov	edi, OFFSET FLAT:.LC0   ;Copy the ptr address of the LC0, which is a 									;global variable,to the edi register,
+	mov	eax, 0 					;change the eax register with the value 
+	call	printf				;call function printf
+.L2:
+	mov	eax, 0					;change the eax register with the value 0
+	leave						;close the stack frame
+	ret							;jump the function to the return address
+	.size	main, .-main		;This line set size for the main function
+	.ident	"GCC: (GNU) 7.3.1 20180712 (Red Hat 7.3.1-15)" ;This line means function end with this 									;kinds of comment
+	.section	.note.GNU-stack,"",@progbits ;This line means that the stack is set to be 
+											 ;non-excuteable.
